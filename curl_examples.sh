@@ -50,6 +50,13 @@ check_and_save() {
     
     echo "🔍 查询任务状态: ${TASK_ID}"
     
+    # 如果有 jq，使用 jq；否则使用 Python 脚本
+    if [ "$USE_PYTHON_FALLBACK" = "1" ]; then
+        echo "使用 Python 脚本保存图片..."
+        python3 save_image.py "${TASK_ID}" "${OUTPUT_FILE}" "${API_BASE}"
+        return
+    fi
+    
     # 轮询任务状态
     while true; do
         RESPONSE=$(curl -s "${API_BASE}/v1/images/generations/${TASK_ID}")
@@ -175,15 +182,18 @@ check_dependencies() {
         exit 1
     fi
     
+    # jq 是可选的，如果没有会提供替代方案
     if ! command -v jq &> /dev/null; then
-        echo "❌ 需要安装 jq (JSON 处理工具)"
-        echo "安装命令: sudo apt-get install jq  # Ubuntu/Debian"
-        echo "         brew install jq          # macOS"
-        exit 1
+        echo "⚠️  jq 未安装，将使用 Python 脚本作为替代方案"
+        echo "如需安装 jq: sudo apt-get install jq  # Ubuntu/Debian"
+        echo "            brew install jq          # macOS"
+        USE_PYTHON_FALLBACK=1
+    else
+        USE_PYTHON_FALLBACK=0
     fi
     
-    if ! command -v base64 &> /dev/null; then
-        echo "❌ 需要安装 base64"
+    if ! command -v python3 &> /dev/null; then
+        echo "❌ 需要安装 python3"
         exit 1
     fi
 }

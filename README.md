@@ -144,6 +144,17 @@ curl -X POST "http://localhost:8000/v1/images/generations" \
 ```
 
 **3. 查询任务状态并保存图片：**
+
+**方式一：使用 Python 脚本（推荐，无需 jq）**
+```bash
+# 使用提供的 Python 脚本
+python3 save_image.py "your-task-id-here" "my_image.png"
+
+# 指定 API 地址（如果不是默认的 8000 端口）
+python3 save_image.py "your-task-id-here" "my_image.png" "http://localhost:7860"
+```
+
+**方式二：使用 curl + jq（需要安装 jq）**
 ```bash
 # 查询任务状态
 TASK_ID="your-task-id-here"
@@ -154,10 +165,18 @@ curl -s "http://localhost:8000/v1/images/generations/${TASK_ID}" | \
   jq -r '.result.image' | base64 -d > generated_image.png
 ```
 
+**方式三：纯 curl + Python 一行命令**
+```bash
+# 一行命令获取并保存图片
+TASK_ID="your-task-id-here"
+curl -s "http://localhost:8000/v1/images/generations/${TASK_ID}" | \
+  python3 -c "import sys,json,base64; data=json.load(sys.stdin); open('generated_image.png','wb').write(base64.b64decode(data['result']['image'])) if data['status']=='completed' else print('Task not completed')"
+```
+
 **依赖要求：**
 - `curl` - HTTP 客户端
-- `jq` - JSON 处理工具
-- `base64` - Base64 解码工具
+- `python3` - Python 3 解释器
+- `jq` - JSON 处理工具（可选，方式一和三不需要）
 
 ## API 接口
 
