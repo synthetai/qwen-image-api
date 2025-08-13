@@ -1,5 +1,6 @@
-fastapi==0.104.1
-uvicorn[standard]==0.24.0
+# Updated versions to resolve dependency conflicts with gradio and albumentations
+fastapi>=0.115.2
+uvicorn[standard]>=0.24.0
 torch>=2.0.0
 # Install the latest version of diffusers from GitHub
 # pip install git+https://github.com/huggingface/diffusers
@@ -7,6 +8,9 @@ git+https://github.com/huggingface/diffusers
 # Make sure transformers>=4.51.3 (Supporting Qwen2.5-VL)
 transformers>=4.51.3
 accelerate>=0.24.0
-pydantic==2.5.0
-requests==2.31.0
+# Updated pydantic to resolve conflict with albumentations
+pydantic>=2.9.2
+requests>=2.31.0
 Pillow>=9.5.0
+# Add starlette to ensure compatibility with fastapi
+starlette>=0.40.0

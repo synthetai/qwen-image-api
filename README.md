@@ -22,11 +22,30 @@ pip install -r requirements.txt
 **重要依赖说明：**
 - **transformers>=4.51.3**：支持 Qwen2.5-VL 模型
 - **diffusers**：使用最新的 GitHub 版本以获得最佳兼容性
+- **fastapi>=0.115.2**：解决与 gradio 的依赖冲突
+- **pydantic>=2.9.2**：解决与 albumentations 的依赖冲突
 
-如果遇到依赖问题，可以手动安装最新版本：
+**解决依赖冲突：**
+如果您的环境中已安装 gradio 或 albumentations，可能会遇到依赖冲突警告。这些警告不会影响 API 正常运行，但如果您希望完全解决，可以：
+
+1. **升级所有包到兼容版本（推荐）：**
+```bash
+pip install --upgrade -r requirements.txt
+```
+
+2. **如果遇到问题，可以手动安装最新版本：**
 ```bash
 pip install transformers>=4.51.3
 pip install git+https://github.com/huggingface/diffusers
+pip install fastapi>=0.115.2 pydantic>=2.9.2
+```
+
+3. **创建新的虚拟环境（最彻底的解决方案）：**
+```bash
+python -m venv qwen_api_env
+source qwen_api_env/bin/activate  # Linux/Mac
+# 或 qwen_api_env\Scripts\activate  # Windows
+pip install -r requirements.txt
 ```
 
 ### 2. 运行服务

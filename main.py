@@ -6,6 +6,7 @@ import base64
 import io
 import logging
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
@@ -18,12 +19,6 @@ import requests
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(
-    title="Qwen Image Generation API",
-    description="API for generating images using Qwen/Qwen-Image model",
-    version="1.0.0"
-)
-
 # Global variables for the model
 pipe = None
 device = None
@@ -35,9 +30,9 @@ tasks: Dict[str, Dict[str, Any]] = {}
 # Thread pool for image generation
 executor = ThreadPoolExecutor(max_workers=2)
 
-# Initialize model on startup
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
     global pipe, device, torch_dtype
     
     logger.info("Initializing Qwen Image model...")
@@ -54,6 +49,19 @@ async def startup_event():
     pipe = DiffusionPipeline.from_pretrained(model_name, torch_dtype=torch_dtype)
     pipe = pipe.to(device)
     logger.info(f"Model loaded successfully on device: {device}")
+    
+    yield
+    
+    # Shutdown
+    logger.info("Shutting down...")
+    executor.shutdown(wait=True)
+
+app = FastAPI(
+    title="Qwen Image Generation API",
+    description="API for generating images using Qwen/Qwen-Image model",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 # Pydantic models
 class ImageGenerationRequest(BaseModel):
