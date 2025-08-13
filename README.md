@@ -50,17 +50,59 @@ pip install -r requirements.txt
 
 ### 2. 运行服务
 
+**推荐使用启动脚本（自动处理兼容性问题）：**
+```bash
+python start_server.py
+```
+
+**或者直接运行：**
 ```bash
 python main.py
 ```
 
-或使用 uvicorn:
-
+**或使用 uvicorn：**
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 服务将在 `http://localhost:8000` 启动。
+
+### 3. 常见问题解决
+
+#### Flash Attention 兼容性问题
+
+如果遇到 `flash_attn` 相关的错误（如 `undefined symbol` 错误），这是由于 flash attention 库与当前 PyTorch 版本不兼容导致的。解决方案：
+
+**方案一（推荐）：使用启动脚本**
+```bash
+python start_server.py
+```
+启动脚本会自动禁用 flash attention，使用标准的注意力机制。
+
+**方案二：手动设置环境变量**
+```bash
+export DIFFUSERS_DISABLE_FLASH_ATTENTION=1
+python main.py
+```
+
+**方案三：卸载 flash attention**
+```bash
+pip uninstall flash-attn
+python main.py
+```
+
+**方案四：重新编译 flash attention**
+```bash
+pip uninstall flash-attn
+pip install flash-attn --no-build-isolation --force-reinstall
+```
+
+#### CUDA 内存不足
+如果遇到 CUDA 内存不足的问题：
+```bash
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+python start_server.py
+```
 
 ## API 接口
 

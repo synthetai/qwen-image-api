@@ -2,6 +2,7 @@
 fastapi>=0.115.2
 uvicorn[standard]>=0.24.0
 torch>=2.0.0
+torchvision>=0.15.0
 # Install the latest version of diffusers from GitHub
 # pip install git+https://github.com/huggingface/diffusers
 git+https://github.com/huggingface/diffusers
@@ -14,3 +15,9 @@ requests>=2.31.0
 Pillow>=9.5.0
 # Add starlette to ensure compatibility with fastapi
 starlette>=0.40.0
+# Additional dependencies for better compatibility
+safetensors>=0.4.0
+# NOTE: If you encounter flash_attn issues, you can try:
+# 1. Uninstall flash_attn: pip uninstall flash-attn
+# 2. Or install compatible version: pip install flash-attn --no-build-isolation
+# The code automatically disables flash attention if there are compatibility issues

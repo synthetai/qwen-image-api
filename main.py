@@ -7,11 +7,16 @@ import io
 import logging
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import asynccontextmanager
+import os
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 import torch
+
+# Disable flash attention to avoid compatibility issues
+os.environ["DIFFUSERS_DISABLE_FLASH_ATTENTION"] = "1"
+
 from diffusers import DiffusionPipeline
 import requests
 
