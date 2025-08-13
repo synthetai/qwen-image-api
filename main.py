@@ -35,10 +35,26 @@ tasks: Dict[str, Dict[str, Any]] = {}
 # Thread pool for image generation
 executor = ThreadPoolExecutor(max_workers=2)
 
+def setup_environment():
+    """Setup environment variables for compatibility"""
+    # Disable flash attention to avoid C++ compatibility issues
+    os.environ["DIFFUSERS_DISABLE_FLASH_ATTENTION"] = "1"
+    
+    # Additional environment variables for stability
+    os.environ["TOKENIZERS_PARALLELISM"] = "false"
+    os.environ["HF_HUB_DISABLE_PROGRESS_BARS"] = "1"
+    
+    logger.info("Environment configured for Qwen Image API")
+    logger.info(f"DIFFUSERS_DISABLE_FLASH_ATTENTION: {os.environ.get('DIFFUSERS_DISABLE_FLASH_ATTENTION')}")
+    logger.info(f"TOKENIZERS_PARALLELISM: {os.environ.get('TOKENIZERS_PARALLELISM')}")
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup
     global pipe, device, torch_dtype
+    
+    # Setup environment first
+    setup_environment()
     
     logger.info("Initializing Qwen Image model...")
     model_name = "Qwen/Qwen-Image"

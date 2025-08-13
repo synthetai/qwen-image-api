@@ -50,22 +50,18 @@ pip install -r requirements.txt
 
 ### 2. 运行服务
 
-**推荐使用启动脚本（自动处理兼容性问题）：**
-```bash
-python start_server.py
-```
-
-**或者直接运行：**
 ```bash
 python main.py
 ```
 
-**或使用 uvicorn：**
+或使用 uvicorn：
 ```bash
 uvicorn main:app --host 0.0.0.0 --port 8000
 ```
 
 服务将在 `http://localhost:8000` 启动。
+
+> **注意**: `main.py` 已经集成了环境配置功能，会自动处理 flash attention 兼容性问题。
 
 ### 3. 常见问题解决
 
@@ -73,11 +69,11 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 如果遇到 `flash_attn` 相关的错误（如 `undefined symbol` 错误），这是由于 flash attention 库与当前 PyTorch 版本不兼容导致的。解决方案：
 
-**方案一（推荐）：使用启动脚本**
+**方案一（推荐）：直接运行（已自动处理）**
 ```bash
-python start_server.py
+python main.py
 ```
-启动脚本会自动禁用 flash attention，使用标准的注意力机制。
+`main.py` 会自动禁用 flash attention，使用标准的注意力机制。
 
 **方案二：手动设置环境变量**
 ```bash
@@ -101,8 +97,67 @@ pip install flash-attn --no-build-isolation --force-reinstall
 如果遇到 CUDA 内存不足的问题：
 ```bash
 export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
-python start_server.py
+python main.py
 ```
+
+## 🖥️ Curl 使用示例
+
+项目包含了完整的 curl 使用脚本 `curl_examples.sh`，可以直接在服务器上使用：
+
+### 基础用法
+
+```bash
+# 给脚本添加执行权限
+chmod +x curl_examples.sh
+
+# 健康检查
+bash curl_examples.sh health
+
+# 完整示例（创建任务并保存图片）
+bash curl_examples.sh full
+
+# 自定义生成
+bash curl_examples.sh custom
+
+# 查看帮助
+bash curl_examples.sh help
+```
+
+### 手动 curl 命令
+
+**1. 健康检查：**
+```bash
+curl http://localhost:8000/health
+```
+
+**2. 创建图片生成任务：**
+```bash
+curl -X POST "http://localhost:8000/v1/images/generations" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "一只可爱的小猫在花园里玩耍",
+    "negative_prompt": "模糊，低质量",
+    "aspect_ratio": "16:9",
+    "num_inference_steps": 30,
+    "true_cfg_scale": 4.0
+  }'
+```
+
+**3. 查询任务状态并保存图片：**
+```bash
+# 查询任务状态
+TASK_ID="your-task-id-here"
+curl "http://localhost:8000/v1/images/generations/${TASK_ID}"
+
+# 提取图片并保存到本地
+curl -s "http://localhost:8000/v1/images/generations/${TASK_ID}" | \
+  jq -r '.result.image' | base64 -d > generated_image.png
+```
+
+**依赖要求：**
+- `curl` - HTTP 客户端
+- `jq` - JSON 处理工具
+- `base64` - Base64 解码工具
 
 ## API 接口
 
