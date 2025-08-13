@@ -7,16 +7,6 @@
 ### 步骤 1：清理 Flash Attention 残留文件
 
 ```bash
-# 运行清理脚本
-python3 fix_flash_attn.py
-
-# 如果权限不足，使用 sudo
-sudo python3 fix_flash_attn.py
-```
-
-### 步骤 2：手动清理（如果脚本未完全解决）
-
-```bash
 # 卸载 flash-attn
 pip uninstall flash-attn -y
 
@@ -28,7 +18,7 @@ sudo rm -rf /usr/local/lib/python3.10/dist-packages/flash_attn*
 pip cache purge
 ```
 
-### 步骤 3：重新安装 diffusers
+### 步骤 2：重新安装 diffusers
 
 ```bash
 # 卸载并重新安装 diffusers
@@ -36,7 +26,7 @@ pip uninstall diffusers -y
 pip install git+https://github.com/huggingface/diffusers
 ```
 
-### 步骤 4：启动服务
+### 步骤 3：启动服务
 
 ```bash
 # 直接启动（已集成环境配置）

@@ -50,10 +50,31 @@ check_and_save() {
     
     echo "🔍 查询任务状态: ${TASK_ID}"
     
-    # 如果有 jq，使用 jq；否则使用 Python 脚本
+    # 如果有 jq，使用 jq；否则使用 Python 一行命令
     if [ "$USE_PYTHON_FALLBACK" = "1" ]; then
-        echo "使用 Python 脚本保存图片..."
-        python3 save_image.py "${TASK_ID}" "${OUTPUT_FILE}" "${API_BASE}"
+        echo "使用 Python 一行命令保存图片..."
+        RESPONSE=$(curl -s "${API_BASE}/v1/images/generations/${TASK_ID}")
+        echo "${RESPONSE}" | python3 -c "
+import sys, json, base64
+try:
+    data = json.load(sys.stdin)
+    if data['status'] == 'completed':
+        image_data = base64.b64decode(data['result']['image'])
+        with open('${OUTPUT_FILE}', 'wb') as f:
+            f.write(image_data)
+        print('✅ 图片已保存: ${OUTPUT_FILE}')
+        result = data['result']
+        print(f'📋 图片信息:')
+        print(f'   提示词: {result.get(\"prompt\", \"N/A\")}')
+        print(f'   尺寸: {result.get(\"width\", \"N/A\")}x{result.get(\"height\", \"N/A\")}')
+        print(f'   比例: {result.get(\"aspect_ratio\", \"N/A\")}')
+    elif data['status'] == 'failed':
+        print('❌ 任务失败:', data.get('error', '未知错误'))
+    else:
+        print(f'⏳ 任务状态: {data[\"status\"]}')
+except Exception as e:
+    print('❌ 处理失败:', str(e))
+"
         return
     fi
     
