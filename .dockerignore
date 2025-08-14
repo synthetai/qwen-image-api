@@ -1,0 +1,46 @@
+# Git 相关
+.git
+.gitignore
+
+# 文档
+README.md
+SERVER_SETUP.md
+
+# Python 缓存
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache
+.coverage
+
+# 虚拟环境
+venv/
+env/
+.venv/
+.env/
+
+# IDE 配置
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 临时文件
+*.tmp
+*.log
+.DS_Store
+Thumbs.db
+
+# 生成的图片
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# 模型缓存
+.cache/
+models/
+huggingface_cache/

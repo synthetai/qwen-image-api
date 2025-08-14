@@ -13,7 +13,43 @@
 
 ## 安装和运行
 
-### 1. 安装依赖
+### 1. 安装 PyTorch（必须先安装）
+
+**⚠️ 重要：需要先手动安装 PyTorch 以确保 CUDA 版本正确**
+
+**选择一：pip 安装（推荐）**
+```bash
+# CUDA 12.4 版本（最新）
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+
+# CUDA 12.1 版本
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# CUDA 11.8 版本
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
+# CPU 版本（不推荐，性能极差）
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+```
+
+**选择二：conda 安装**
+```bash
+# CUDA 12.4
+conda install pytorch torchvision torchaudio pytorch-cuda=12.4 -c pytorch -c nvidia
+
+# CUDA 12.1  
+conda install pytorch torchvision torchaudio pytorch-cuda=12.1 -c pytorch -c nvidia
+
+# CUDA 11.8
+conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+```
+
+**验证安装：**
+```bash
+python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}'); print(f'CUDA version: {torch.version.cuda if torch.cuda.is_available() else \"N/A\"}')"
+```
+
+### 2. 安装其他依赖
 
 ```bash
 pip install -r requirements.txt
@@ -48,7 +84,7 @@ source qwen_api_env/bin/activate  # Linux/Mac
 pip install -r requirements.txt
 ```
 
-### 2. 运行服务
+### 3. 运行服务
 
 ```bash
 python main.py
@@ -63,7 +99,39 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 > **注意**: `main.py` 已经集成了环境配置功能，会自动处理 flash attention 兼容性问题。
 
-### 3. 常见问题解决
+### 4. Docker 部署（可选）
+
+如果您希望使用 Docker 部署：
+
+```bash
+# 构建镜像
+docker build -t qwen-image-api .
+
+# 运行容器（需要 GPU 支持）
+docker run -d \
+  --name qwen-api \
+  --gpus all \
+  -p 8000:8000 \
+  qwen-image-api
+
+# 查看日志
+docker logs qwen-api
+
+# 停止容器
+docker stop qwen-api
+```
+
+**Docker 部署优势：**
+- ✅ 环境隔离，避免依赖冲突
+- ✅ 自动处理 flash attention 问题
+- ✅ 便于部署和扩展
+- ✅ 基于 CUDA 12.4，支持最新 GPU 特性
+
+**系统要求：**
+- NVIDIA GPU 驱动 >= 550.54.15 (支持 CUDA 12.4)
+- Docker with NVIDIA Container Toolkit
+
+### 5. 常见问题解决
 
 #### Flash Attention 兼容性问题
 
